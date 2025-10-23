@@ -11,7 +11,12 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
-import { RegisterDto, LoginDto, ResetPasswordDto, RequestPasswordResetDto } from './dto';
+import {
+  RegisterDto,
+  LoginDto,
+  ResetPasswordDto,
+  RequestPasswordResetDto,
+} from './dto';
 
 @Injectable()
 export class AuthService {
@@ -180,7 +185,8 @@ export class AuthService {
     // Don't reveal if user exists or not for security
     if (!user) {
       return {
-        message: 'If an account with that email exists, a password reset link has been sent.',
+        message:
+          'If an account with that email exists, a password reset link has been sent.',
       };
     }
 
@@ -204,7 +210,8 @@ export class AuthService {
     await this.emailService.sendPasswordResetEmail(email, resetToken);
 
     return {
-      message: 'If an account with that email exists, a password reset link has been sent.',
+      message:
+        'If an account with that email exists, a password reset link has been sent.',
     };
   }
 
@@ -265,7 +272,8 @@ export class AuthService {
     });
 
     return {
-      message: 'Password reset successful. Please login with your new password.',
+      message:
+        'Password reset successful. Please login with your new password.',
     };
   }
 
@@ -282,7 +290,8 @@ export class AuthService {
     );
 
     // Create refresh token with jti
-    const refreshTokenExpiry = this.configService.get<string>('JWT_REFRESH_EXPIRY');
+    const refreshTokenExpiry =
+      this.configService.get<string>('JWT_REFRESH_EXPIRY');
     const refreshToken = this.jwtService.sign(
       { sub: userId, jti },
       {
@@ -309,4 +318,3 @@ export class AuthService {
     };
   }
 }
-

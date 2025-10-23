@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -46,7 +54,9 @@ export class AuthController {
   @Public()
   @Post('request-password-reset')
   @HttpCode(HttpStatus.OK)
-  async requestPasswordReset(@Body() requestPasswordResetDto: RequestPasswordResetDto) {
+  async requestPasswordReset(
+    @Body() requestPasswordResetDto: RequestPasswordResetDto,
+  ) {
     return this.authService.requestPasswordReset(requestPasswordResetDto);
   }
 
@@ -66,4 +76,3 @@ export class AuthController {
     };
   }
 }
-
