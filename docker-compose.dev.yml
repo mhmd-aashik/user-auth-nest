@@ -84,4 +84,3 @@ volumes:
 networks:
   user-auth-dev-network:
     driver: bridge
-

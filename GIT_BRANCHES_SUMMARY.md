@@ -1,14 +1,17 @@
 # Git Branches Summary
 
 ## Overview
+
 All authentication features have been implemented and organized into feature branches with descriptive commit messages.
 
 ## Feature Branches
 
 ### 1. `feature/setup-prisma`
+
 **Commit:** "feat: setup Prisma with User, RefreshToken, and PasswordResetToken models"
 
 **Changes:**
+
 - Initialize Prisma with PostgreSQL configuration
 - Create User model with email, password, and name fields
 - Create RefreshToken model with jti, userId, expiry, and isRevoked fields
@@ -20,9 +23,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 2. `feature/auth-dtos`
+
 **Commit:** "feat: create DTOs for authentication operations"
 
 **Changes:**
+
 - Add RegisterDto with email, password, and optional name validation
 - Add LoginDto with email and password validation
 - Add RefreshTokenDto for token refresh requests
@@ -34,9 +39,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 3. `feature/email-service`
+
 **Commit:** "feat: implement email service for notifications"
 
 **Changes:**
+
 - Create EmailService with Nodemailer integration
 - Add sendPasswordResetEmail method with formatted HTML template
 - Add sendWelcomeEmail method for new user registration
@@ -47,9 +54,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 4. `feature/auth-guards-decorators`
+
 **Commit:** "feat: add authentication guards, strategies, and decorators"
 
 **Changes:**
+
 - Implement JwtAuthGuard with support for @Public() decorator
 - Create JwtStrategy for passport JWT authentication
 - Add @Public() decorator to mark routes as public
@@ -60,9 +69,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 5. `feature/auth-register-login`
+
 **Commit:** "feat: implement user registration and login with JWT tokens"
 
 **Changes:**
+
 - Create AuthService with register and login methods
 - Hash passwords using bcrypt before storage
 - Generate access tokens (15 minutes expiry)
@@ -79,9 +90,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 6. `feature/refresh-token-rotation`
+
 **Commit:** "feat: implement secure refresh token rotation mechanism"
 
 **Changes:**
+
 - Add refreshToken method in AuthService
 - Validate refresh token signature and expiry
 - Check if token exists in database and is not revoked
@@ -95,9 +108,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 7. `feature/logout`
+
 **Commit:** "feat: implement logout with refresh token revocation"
 
 **Changes:**
+
 - Add logout method in AuthService
 - Verify and decode refresh token
 - Mark refresh token as revoked in database
@@ -109,9 +124,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 8. `feature/password-reset`
+
 **Commit:** "feat: implement password reset flow with email"
 
 **Changes:**
+
 - Add requestPasswordReset method to generate reset tokens
 - Hash reset tokens before storing in database
 - Store reset tokens with 15-minute expiry and one-time use flag
@@ -127,9 +144,11 @@ All authentication features have been implemented and organized into feature bra
 ---
 
 ### 9. `feature/documentation-and-linting`
+
 **Commit:** "docs: add comprehensive README and fix linting issues"
 
 **Changes:**
+
 - Add detailed README with setup instructions
 - Document all API endpoints with examples
 - Include database schema documentation
@@ -163,6 +182,7 @@ git merge feature/documentation-and-linting
 ```
 
 Or merge them all at once (if no conflicts):
+
 ```bash
 git checkout main
 git merge feature/setup-prisma feature/auth-dtos feature/email-service feature/auth-guards-decorators feature/auth-register-login feature/refresh-token-rotation feature/logout feature/password-reset feature/documentation-and-linting
@@ -171,6 +191,7 @@ git merge feature/setup-prisma feature/auth-dtos feature/email-service feature/a
 ## Branch Cleanup
 
 After merging, you can delete the feature branches:
+
 ```bash
 git branch -d feature/setup-prisma
 git branch -d feature/auth-dtos
@@ -198,4 +219,3 @@ git branch -d feature/documentation-and-linting
 3. **Configure email**: Update email settings in .env
 4. **Test the API**: Start the server with `npm run start:dev`
 5. **Merge branches**: Merge feature branches into main as needed
-

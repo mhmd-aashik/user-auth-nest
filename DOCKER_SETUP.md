@@ -12,11 +12,13 @@ This guide explains how to run the NestJS User Authentication system using Docke
 ### Production Mode
 
 1. **Start all services**
+
    ```bash
    docker-compose up -d
    ```
 
 2. **Check logs**
+
    ```bash
    docker-compose logs -f app
    ```
@@ -33,11 +35,13 @@ This guide explains how to run the NestJS User Authentication system using Docke
 ### Development Mode
 
 1. **Start development environment with hot reload**
+
    ```bash
    docker-compose -f docker-compose.dev.yml up -d
    ```
 
 2. **View logs**
+
    ```bash
    docker-compose -f docker-compose.dev.yml logs -f app
    ```
@@ -87,6 +91,7 @@ docker-compose -f docker-compose.dev.yml --env-file .env.docker.local up -d
 ## Docker Services
 
 ### 1. PostgreSQL Database (`postgres`)
+
 - **Port**: 5432
 - **User**: postgres
 - **Password**: postgres
@@ -94,17 +99,20 @@ docker-compose -f docker-compose.dev.yml --env-file .env.docker.local up -d
 - **Volume**: `postgres_data` (persists data)
 
 ### 2. NestJS Application (`app`)
+
 - **Port**: 3000
 - **Environment**: Production/Development
 - **Auto-migration**: Runs Prisma migrations on startup
 
 ### 3. pgAdmin (Optional - `pgadmin`)
+
 - **Port**: 5050
 - **Email**: admin@admin.com
 - **Password**: admin
 - **Profile**: `tools` (only starts when specified)
 
 To start with pgAdmin:
+
 ```bash
 docker-compose --profile tools up -d
 ```
@@ -208,6 +216,7 @@ docker-compose exec app npm run lint
 ### Hot Reload Development
 
 1. **Start development environment**
+
    ```bash
    docker-compose -f docker-compose.dev.yml up -d
    ```
@@ -263,6 +272,7 @@ docker push your-registry/user-auth-api:latest
 ### Production Best Practices
 
 1. **Use secrets management**
+
    ```bash
    docker secret create jwt_access_secret ./jwt_access.txt
    docker secret create jwt_refresh_secret ./jwt_refresh.txt
@@ -275,6 +285,7 @@ docker push your-registry/user-auth-api:latest
    - Monitor with: `docker inspect --format='{{.State.Health.Status}}' user-auth-app`
 
 4. **Use volume backups**
+
    ```bash
    docker run --rm -v user-auth_postgres_data:/data -v $(pwd):/backup \
      alpine tar czf /backup/postgres-backup.tar.gz -C /data .
@@ -409,17 +420,20 @@ docker run --rm -v user-auth_postgres_data:/data -v $(pwd):/backup \
 ## Useful Docker Tips
 
 1. **View resource usage**
+
    ```bash
    docker stats
    ```
 
 2. **Clean up unused resources**
+
    ```bash
    docker system df
    docker system prune
    ```
 
 3. **Export/Import containers**
+
    ```bash
    docker export user-auth-app > app.tar
    docker import app.tar
@@ -437,4 +451,3 @@ docker run --rm -v user-auth_postgres_data:/data -v $(pwd):/backup \
 3. Run initial migration with `docker-compose exec app npx prisma migrate deploy`
 4. Test the API at http://localhost:3000
 5. Access pgAdmin at http://localhost:5050 (if using `--profile tools`)
-
