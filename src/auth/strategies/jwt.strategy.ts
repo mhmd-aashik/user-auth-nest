@@ -30,7 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     name: string | null;
     createdAt: Date;
   }> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       select: {
@@ -45,7 +44,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return user;
   }
 }

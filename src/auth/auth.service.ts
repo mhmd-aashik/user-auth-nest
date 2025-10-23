@@ -232,7 +232,7 @@ export class AuthService {
     });
 
     // Find the matching token by comparing hashes
-    let matchedToken = null;
+    let matchedToken: any = null;
     for (const storedToken of resetTokens) {
       const isMatch = await bcrypt.compare(token, storedToken.hashedToken);
       if (isMatch) {
@@ -280,25 +280,11 @@ export class AuthService {
   private async generateTokens(userId: string) {
     const jti = uuidv4();
 
-    // Create access token
-    const accessToken = this.jwtService.sign(
-      { sub: userId },
-      {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRY'),
-      },
-    );
+    // Create access token using configured JWT module
+    const accessToken = this.jwtService.sign({ sub: userId });
 
     // Create refresh token with jti
-    const refreshTokenExpiry =
-      this.configService.get<string>('JWT_REFRESH_EXPIRY');
-    const refreshToken = this.jwtService.sign(
-      { sub: userId, jti },
-      {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: refreshTokenExpiry,
-      },
-    );
+    const refreshToken = this.jwtService.sign({ sub: userId, jti });
 
     // Store refresh token in database
     const expiresAt = new Date();
