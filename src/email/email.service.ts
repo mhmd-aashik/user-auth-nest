@@ -19,7 +19,10 @@ export class EmailService {
     });
   }
 
-  async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
+  async sendPasswordResetEmail(
+    email: string,
+    resetToken: string,
+  ): Promise<void> {
     const appUrl = this.configService.get<string>('APP_URL');
     const resetUrl = `${appUrl}/auth/reset-password?token=${resetToken}`;
 
@@ -53,7 +56,7 @@ export class EmailService {
 
   async sendWelcomeEmail(email: string, name?: string): Promise<void> {
     const displayName = name || 'there';
-    
+
     const mailOptions = {
       from: this.configService.get<string>('EMAIL_FROM'),
       to: email,
@@ -80,4 +83,3 @@ export class EmailService {
     }
   }
 }
-

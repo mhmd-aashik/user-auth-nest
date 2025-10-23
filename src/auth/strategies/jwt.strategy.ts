@@ -4,6 +4,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 
+interface JwtPayload {
+  sub: string;
+  iat?: number;
+  exp?: number;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -13,11 +19,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_ACCESS_SECRET'),
+      secretOrKey:
+        configService.get<string>('JWT_ACCESS_SECRET') || 'fallback-secret-key',
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload): Promise<{
+    id: string;
+    email: string;
+    name: string | null;
+    createdAt: Date;
+  }> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
       select: {
@@ -32,7 +45,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return user;
   }
 }
-

@@ -1,98 +1,498 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS User Authentication System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive authentication system built with NestJS, featuring JWT-based authentication, refresh token rotation, password reset, and email notifications.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+### 🔐 Authentication
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **User Registration** - Create new accounts with email validation
+- **User Login** - Authenticate with email and password
+- **JWT Access Tokens** - Short-lived tokens (15 minutes) for API access
+- **Refresh Token Rotation** - Secure token refresh mechanism with automatic rotation
+- **Logout** - Token revocation on logout
 
-## Project setup
+### 🔑 Password Management
 
-```bash
-$ npm install
+- **Password Reset Request** - Request password reset via email
+- **Password Reset** - Secure one-time token-based password reset
+- **Password Hashing** - BCrypt encryption for secure password storage
+
+### 📧 Email Features
+
+- Welcome email on registration
+- Password reset email with secure token
+- Configurable SMTP settings
+
+### 🛡️ Security Features
+
+- Refresh token stored in database with UUID (`jti`)
+- Token revocation tracking
+- One-time use reset tokens
+- Token expiry validation
+- Force logout on password reset
+- Global authentication guard
+- Public route decorator for non-protected endpoints
+
+## Tech Stack
+
+- **Framework**: NestJS 11
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT (JSON Web Tokens)
+- **Validation**: class-validator & class-transformer
+- **Email**: Nodemailer
+- **Password Hashing**: BCrypt
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL database
+- SMTP email service (e.g., Gmail, SendGrid)
+
+## Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <your-repo-url>
+   cd user-auth
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+
+   Update the `.env` file with your configuration:
+
+   ```env
+   # Database
+   DATABASE_URL="postgresql://user:password@localhost:5432/user_auth?schema=public"
+
+   # JWT Secrets (CHANGE THESE IN PRODUCTION!)
+   JWT_ACCESS_SECRET="your-super-secret-access-key"
+   JWT_REFRESH_SECRET="your-super-secret-refresh-key"
+
+   # JWT Expiry
+   JWT_ACCESS_EXPIRY="15m"
+   JWT_REFRESH_EXPIRY="7d"
+
+   # Email Configuration
+   EMAIL_HOST="smtp.gmail.com"
+   EMAIL_PORT=587
+   EMAIL_USER="your-email@gmail.com"
+   EMAIL_PASSWORD="your-app-password"
+   EMAIL_FROM="noreply@yourapp.com"
+
+   # Application
+   PORT=3000
+   NODE_ENV="development"
+   APP_URL="http://localhost:3000"
+   ```
+
+4. **Set up database**
+
+   ```bash
+   # Generate Prisma client
+   npx prisma generate
+
+   # Run migrations
+   npx prisma migrate dev --name init
+
+   # (Optional) Open Prisma Studio to view database
+   npx prisma studio
+   ```
+
+5. **Start the application**
+
+   ```bash
+   # Development mode
+   npm run start:dev
+
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+## API Endpoints
+
+### Public Endpoints (No Authentication Required)
+
+#### 1. Register
+
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "strongPassword123",
+  "name": "John Doe"  // optional
+}
 ```
 
-## Compile and run the project
+**Response:**
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+{
+  "message": "Registration successful! Welcome to our platform.",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "John Doe"
+  },
+  "accessToken": "eyJhbGc...",
+  "refreshToken": "eyJhbGc..."
+}
 ```
 
-## Run tests
+#### 2. Login
 
-```bash
-# unit tests
-$ npm run test
+```http
+POST /auth/login
+Content-Type: application/json
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+{
+  "email": "user@example.com",
+  "password": "strongPassword123"
+}
 ```
 
-## Deployment
+**Response:**
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```json
+{
+  "message": "Login successful!",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "John Doe"
+  },
+  "accessToken": "eyJhbGc...",
+  "refreshToken": "eyJhbGc..."
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+#### 3. Refresh Token
 
-## Resources
+```http
+POST /auth/refresh
+Content-Type: application/json
 
-Check out a few resources that may come in handy when working with NestJS:
+{
+  "refreshToken": "eyJhbGc..."
+}
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Response:**
 
-## Support
+```json
+{
+  "message": "Token refreshed successfully",
+  "accessToken": "eyJhbGc...",
+  "refreshToken": "eyJhbGc..."
+}
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+#### 4. Logout
 
-## Stay in touch
+```http
+POST /auth/logout
+Content-Type: application/json
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+{
+  "refreshToken": "eyJhbGc..."
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+#### 5. Request Password Reset
+
+```http
+POST /auth/request-password-reset
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "If an account with that email exists, a password reset link has been sent."
+}
+```
+
+#### 6. Reset Password
+
+```http
+POST /auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "reset-token-from-email",
+  "newPassword": "newStrongPassword123"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Password reset successful. Please login with your new password."
+}
+```
+
+### Protected Endpoints (Authentication Required)
+
+#### Get User Profile
+
+```http
+GET /auth/me
+Authorization: Bearer <access-token>
+```
+
+**Response:**
+
+```json
+{
+  "message": "Profile retrieved successfully",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  }
+}
+```
+
+## Database Schema
+
+### User
+
+- `id`: UUID (Primary Key)
+- `email`: String (Unique)
+- `password`: String (Hashed)
+- `name`: String (Optional)
+- `createdAt`: DateTime
+- `updatedAt`: DateTime
+
+### RefreshToken
+
+- `id`: UUID (Primary Key)
+- `jti`: UUID (Unique identifier for the token)
+- `userId`: UUID (Foreign Key)
+- `expiresAt`: DateTime
+- `isRevoked`: Boolean
+- `createdAt`: DateTime
+
+### PasswordResetToken
+
+- `id`: UUID (Primary Key)
+- `userId`: UUID (Foreign Key)
+- `hashedToken`: String
+- `expiresAt`: DateTime
+- `isUsed`: Boolean
+- `createdAt`: DateTime
+
+## Authentication Flow
+
+### Registration Flow
+
+1. User submits registration form
+2. System validates input data
+3. Password is hashed using BCrypt
+4. User record is created in database
+5. Access token (15m) and refresh token (7d) are generated
+6. Refresh token stored in database with UUID (`jti`)
+7. Welcome email sent asynchronously
+8. Tokens returned to client
+
+### Login Flow
+
+1. User submits credentials
+2. System validates email and password
+3. Access token (15m) and refresh token (7d) are generated
+4. Refresh token stored in database with UUID (`jti`)
+5. Tokens returned to client
+
+### Refresh Token Flow
+
+1. Client submits refresh token
+2. System validates token signature
+3. System checks if token exists in database and is not revoked/expired
+4. Old refresh token is marked as revoked
+5. New access token and refresh token are generated
+6. New refresh token stored in database
+7. New tokens returned to client
+
+### Logout Flow
+
+1. Client submits refresh token
+2. System marks the token as revoked in database
+3. Success message returned
+
+### Password Reset Flow
+
+1. User requests password reset with email
+2. System generates random UUID token
+3. Token is hashed and stored in database with 15-minute expiry
+4. Reset email sent with raw token
+5. User clicks link and submits new password
+6. System validates token by comparing hashes
+7. Password is updated
+8. Reset token marked as used
+9. All refresh tokens for user are revoked (force logout)
+
+## Security Best Practices
+
+1. **Environment Variables**: Never commit `.env` file - use `.env.example` as template
+2. **JWT Secrets**: Use strong, random secrets in production
+3. **Database Credentials**: Use strong passwords and limit access
+4. **HTTPS**: Always use HTTPS in production
+5. **Token Storage**: Store refresh tokens securely (HTTP-only cookies recommended)
+6. **Rate Limiting**: Implement rate limiting for auth endpoints in production
+7. **Email Verification**: Consider adding email verification for registration
+
+## Development Commands
+
+```bash
+# Development
+npm run start:dev
+
+# Build
+npm run build
+
+# Production
+npm run start:prod
+
+# Testing
+npm run test
+npm run test:e2e
+
+# Linting
+npm run lint
+
+# Format
+npm run format
+
+# Database
+npx prisma studio          # Open database GUI
+npx prisma migrate dev     # Run migrations
+npx prisma generate        # Generate Prisma client
+```
+
+## Project Structure
+
+```
+src/
+├── auth/
+│   ├── decorators/
+│   │   ├── current-user.decorator.ts
+│   │   └── public.decorator.ts
+│   ├── dto/
+│   │   ├── login.dto.ts
+│   │   ├── register.dto.ts
+│   │   ├── refresh-token.dto.ts
+│   │   ├── request-password-reset.dto.ts
+│   │   ├── reset-password.dto.ts
+│   │   └── index.ts
+│   ├── guards/
+│   │   └── jwt-auth.guard.ts
+│   ├── strategies/
+│   │   └── jwt.strategy.ts
+│   ├── auth.controller.ts
+│   ├── auth.module.ts
+│   └── auth.service.ts
+├── email/
+│   ├── email.module.ts
+│   └── email.service.ts
+├── prisma/
+│   ├── prisma.module.ts
+│   └── prisma.service.ts
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+└── main.ts
+
+prisma/
+├── migrations/
+└── schema.prisma
+```
+
+## Email Configuration
+
+### Gmail Setup
+
+1. Enable 2-factor authentication on your Google account
+2. Generate an app password: https://myaccount.google.com/apppasswords
+3. Use the app password in `EMAIL_PASSWORD` environment variable
+
+### Other SMTP Services
+
+- **SendGrid**: Use API key as password
+- **Mailgun**: Configure SMTP credentials
+- **AWS SES**: Use SMTP credentials
+
+## Troubleshooting
+
+### Database Connection Issues
+
+```bash
+# Check PostgreSQL is running
+psql -U postgres -h localhost
+
+# Verify DATABASE_URL in .env
+# Make sure database exists
+createdb user_auth
+```
+
+### Prisma Issues
+
+```bash
+# Reset database (WARNING: deletes all data)
+npx prisma migrate reset
+
+# Generate client
+npx prisma generate
+```
+
+### Email Issues
+
+- Check SMTP credentials
+- Verify email service allows less secure apps or use app passwords
+- Check firewall/network settings for SMTP port access
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the UNLICENSED License.
+
+## Author
+
+Your Name
+
+## Acknowledgments
+
+- NestJS Documentation
+- Prisma Documentation
+- JWT Best Practices
